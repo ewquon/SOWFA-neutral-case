@@ -1,16 +1,10 @@
 #!/bin/bash
-#PBS -l walltime=48:00:00
-#PBS -l nodes=1:ppn=16
-#PBS -l feature=16core
-#PBS -A windsim
-#PBS -q batch
-
-
-
+#SBATCH --time=6:00:00
+#SBATCH --ntasks=1
 
 
 # User Input.
-OpenFOAMversion=2.4.x-central   # OpenFOAM version
+OpenFOAMversion=2.4.x-dev       # OpenFOAM version
 startTime=0                     # Start time
 updateBCType=0                  # Boolean for whether or not the boundary condition types will be updated over 
                                 #    what is in the initial conditions files. Leave it 0 for precursors
@@ -30,8 +24,6 @@ refinementLevels=0              # If you want to refine the mesh locally for any
                                 # to the refinement level (i.e., if you are doing nested local refinement boxes.
                                 # In most cases, though, you probably will not be refining, so keep this set to 
                                 # 0.
-
-
 
 
 # Define some functions for mesh refinement.
@@ -60,18 +52,11 @@ refineMeshGlobal()
    do
       echo "   -Performing level $i global refinement with refineMesh"
       echo "      *refining cells..."
-      mpirun -np $cores refineMesh -all -parallel -overwrite > log.refineMesh.global.$i 2>&1
+      srun refineMesh -all -parallel -overwrite > log.refineMesh.global.$i 2>&1
 
       let i=i+1
    done
 }
-
-
-# If running in parallel, cd to job launch directory
-if [ $parallel -eq 1 ]
-   then
-   cd $PBS_O_WORKDIR
-fi
 
 
 # Source the bash profile and then call the appropriate OpenFOAM version function
@@ -118,7 +103,7 @@ if [ $parallel -eq 1 ]
    decomposePar -cellDist -force > log.decomposePar 2>&1
 
    # Check the mesh
-   mpirun -np $cores checkMesh -parallel > log.checkMesh.1 2>&1
+   srun checkMesh -parallel > log.checkMesh.1 2>&1
 
    # Perform global refinement to desired resolution.
    refineMeshGlobal $refinementLevels
@@ -129,14 +114,14 @@ if [ $parallel -eq 1 ]
    # boundary data to a uniform single value.
    if [ $updateBCType -eq 1 ]
       then
-      mpirun -np $cores changeDictionary -dict system/changeDictionaryDict.updateBCs.$inflowDir -time $startTime -enableFunctionEntries -parallel > log.changeDictionary.updateBCs.$inflowDir.1 2>&1
+      srun changeDictionary -dict system/changeDictionaryDict.updateBCs.$inflowDir -time $startTime -enableFunctionEntries -parallel > log.changeDictionary.updateBCs.$inflowDir.1 2>&1
    fi
 
    # Renumber the mesh for better matrix solver performance.
-   mpirun -np $cores renumberMesh -parallel -overwrite > log.renumberMesh 2>&1
+   srun renumberMesh -parallel -overwrite > log.renumberMesh 2>&1
 
    # Do one last check on the mesh.
-   mpirun -np $cores checkMesh -parallel > log.checkMesh.3 2>&1
+   srun checkMesh -parallel > log.checkMesh.3 2>&1
 
 
 # Otherwise, run in serial as follows:

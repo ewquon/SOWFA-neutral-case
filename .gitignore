@@ -1,0 +1,15 @@
+# preprocessing output
+0/
+constant/polyMesh/boundary*
+constant/polyMesh/faces*
+constant/polyMesh/neighbour*
+constant/polyMesh/owner*
+constant/polyMesh/points*
+constant/polyMesh/cellZones*
+constant/polyMesh/faceZones*
+constant/polyMesh/pointZones*
+constant/cellDecomposition*
+system/controlDict
+processor*/
+log.*
+*.out
