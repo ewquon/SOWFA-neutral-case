@@ -121,7 +121,7 @@ if [ $parallel -eq 1 ]
    srun renumberMesh -parallel -overwrite > log.renumberMesh 2>&1
 
    # Do one last check on the mesh.
-   srun checkMesh -parallel > log.checkMesh.3 2>&1
+   srun checkMesh -parallel > log.checkMesh.2 2>&1
 
 
 # Otherwise, run in serial as follows:
@@ -136,5 +136,5 @@ else
 
    # Check the mesh.
    echo "   -Checking the mesh with checkMesh..."
-   checkMesh > log.checkMesh.1 2>&1
+   checkMesh > log.checkMesh 2>&1
 fi

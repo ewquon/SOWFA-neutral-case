@@ -13,3 +13,9 @@ system/controlDict
 processor*/
 log.*
 *.out
+
+core.*
+
+# ABLSolver output
+postProcessing/
+
